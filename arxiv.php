@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
   <style type="text/css">
@@ -10,22 +9,25 @@
       text-align: left;
     }
     .title-col{
-      width: 600px;
+      width: 700px;
       text-align: center;
     }
     .date-col{
       width: 130px;
       text-align: left;
     }
-    .read-col{
-      width:50px;
-      text-align: left;
-    }
     .abstract-col{
-      width: 80px;
+      width: 100px;
+    }
+    .read-btn{
+      margin:auto;
+      display: block;
     }
     .set-read{
-      width:70px;
+      width:90px;
+    }
+    .remove{
+      width:100px;
     }
     .pagination {
       display: flex;
@@ -43,7 +45,7 @@
   include('materialize.php');
   require_once("pdo.php");
 
-  $limitperpage = 8;
+  $limitperpage = 10;
   if (isset($_GET['page'])) {
     $page = (int)$_GET['page'];
   }
@@ -100,9 +102,9 @@
             <th class='id-col'>Id</th>
             <th class='title-col'>Title</th>
             <th class='date-col'>Access Date</th>
-            <th class='read-col'>Read?</th>
             <th class='abstract-col'>Abstract</th>
             <th class='set-read'>Set Read on Click</th>
+            <th class='remove'></th>
           </tr>
         </thead>
 
@@ -112,7 +114,7 @@
             while($paper = $arxiv_papers->fetch(PDO::FETCH_ASSOC)):
               if ($paper['read_pdf'] == '0'){
                 $read_text = 'No';
-                $set_read_color = "red";
+                $set_read_color = "orange";
               }
               else {
                 $read_text = 'Yes';
@@ -123,11 +125,9 @@
               echo "<td>".$paper['id']."</td>";
               echo '<td><a href="'.$paper['abs_url'].'">'.$paper['title'].'</a></td>';
               echo '<td>'.$paper['visit_time'].'</td>';
-              echo '<td>'.$read_text.'</td>';
               echo '<td><a class="z-depth-0 waves-effect waves-light btn modal-trigger  light-blue lighten-4 black-text" href="#absmodal_'.$paper['id'].'">View</a></td>';
-              //echo '<td><btn class="setreadbtn z-depth-0 waves-effect waves-light btn'.$set_read_color.'" href="#readbtn_'.$paper['id'].'">'.$read_text.'</btn></td>';
-
-              echo '<td><form method="post"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
+              echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
+              echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text red lighten-1" type="submit" name="remove_'.$paper['id'].'" value="Remove"/></form></td>';
               echo '</tr>';
               ?>
               <!-- Abstract Modal Contents -->
@@ -153,7 +153,9 @@
 
     $arxiv_papers -> execute();  // since PDOStatement can't be used once consumed, need to re-execute the statement before another loop
     while($paper = $arxiv_papers->fetch(PDO::FETCH_ASSOC)){
+
       $previous_read_state = $paper['read_pdf'];
+
       if (isset($_POST['read_state_'.$paper['id']])) {
           if ($previous_read_state == '0') {
           $new_read_state = '1';
@@ -161,27 +163,50 @@
         elseif ($previous_read_state == '1') {
           $new_read_state = '0';
           }
-        $log_statement = $pdo->prepare("INSERT INTO read_state_log (paper_id,paper_title,`from`,`to`,change_date,note)
-                                        VALUES (:paper_id,:paper_title,:change_from,:change_to,:change_date,:note)");
-        $log_statement -> execute([
+          // insert the record change into logs table
+        $read_change_log_statement = $pdo->prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,`from`,`to`,change_date,abs_url)
+                                        VALUES (:log_type,:paper_id,:paper_title,:change_from,:change_to,:change_date,:url)");
+        $read_change_log_statement -> execute([
+          'log_type' => 'read state change',
           'paper_id' => $paper['id'],
           'paper_title' => $paper['title'],
           'change_from' => $previous_read_state,
           'change_to' => $new_read_state,
           'change_date' => $current_date,
-          'note' => 'development test',
+          'url' => $paper['abs_url'],
         ]);
 
-        $update_arxiv_papers = $pdo->prepare("UPDATE arxiv_papers SET read_pdf=:new_read_state_update WHERE id=:paper_id_update");
-        $update_arxiv_papers -> execute([
+        // update the original papers table
+        $update_read_arxiv_papers = $pdo->prepare("UPDATE arxiv_papers SET read_pdf=:new_read_state_update WHERE id=:paper_id_update");
+        $update_read_arxiv_papers -> execute([
           'paper_id_update' => $paper['id'],
           'new_read_state_update' => $new_read_state,
         ]);
+        echo '<script type="text/javascript">
+                   window.location = "arxiv.php"
+              </script>';
         }
-      else{
-        $new_read_state = $previous_read_state;
+        // if paper is removed with button
+        if(isset($_POST['remove_'.$paper['id']])){
+          $remove_statement = $pdo -> prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,`from`,`to`,change_date,abs_url)
+                                          VALUES (:log_type,:paper_id,:paper_title,:change_from,:change_to,:change_date,:url)");
+          $remove_statement -> execute([
+            'log_type' => 'remove paper',
+            'paper_id' => $paper['id'],
+            'paper_title' => $paper['title'],
+            'change_from' => NULL,
+            'change_to' => NULL,
+            'change_date' => $current_date,
+            'url' => $paper['abs_url'],
+          ]);
+          // delete record from original table
+          $update_remove_arxiv_papers = $pdo->prepare("DELETE FROM arxiv_papers WHERE id=:paper_id_remove");
+          $update_remove_arxiv_papers -> execute(['paper_id_remove' => $paper['id']]);
+          echo '<script type="text/javascript">
+                     window.location = "arxiv.php"
+                </script>';
+        }
       }
-    }
     ?>
 
   </main>

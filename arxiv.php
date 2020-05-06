@@ -2,7 +2,11 @@
 <head>
   <style type="text/css">
     table{
-      table-layout: fixed;
+      font-size: 15px;
+    }
+    .log-table{
+      margin-top: 10px;
+      float: right;
     }
     .id-col{
       width:40px;
@@ -23,16 +27,24 @@
       margin:auto;
       display: block;
     }
+    .remove-btn{
+      margin:auto;
+      display: block;
+    }
+    input{
+      font-weight: bold;
+    }
     .set-read{
-      width:90px;
+      width:100px;
     }
     .remove{
       width:100px;
     }
     .pagination {
+      margin-left: 45%;
+      margin-right: 35%;
+      width: 20%;
       display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .update{
     display: inline;
@@ -45,14 +57,16 @@
   include('materialize.php');
   require_once("pdo.php");
 
-  $limitperpage = 10;
+  // pagination stuff
+  $limitperpage = 12;
   if (isset($_GET['page'])) {
     $page = (int)$_GET['page'];
   }
   else { $page = 1; }
 
   $start_each_page = ($page - 1) * $limitperpage;
-  $arxiv_papers = $pdo->prepare("SELECT id,title,visit_time,abs_url,read_pdf,abstract FROM arxiv_papers ORDER BY id DESC LIMIT $start_each_page, $limitperpage");
+
+  $arxiv_papers = $pdo->prepare("SELECT id,title,arxivid,visit_time,abs_url,read_pdf,abstract FROM arxiv_papers ORDER BY visit_time DESC LIMIT $start_each_page, $limitperpage");
   $arxiv_papers -> execute();
 
   $count_rows_query = $pdo -> query("SELECT count(id) from arxiv_papers");
@@ -80,6 +94,10 @@
       <p>Last Updated on: </p>
     </div>
     -->
+    <div class="container">
+    <a class="log-table btn z-depth-0 black-text lime waves-effect waves-light" href="papers_log.php">change log</a>
+    </div>
+
     <!-- Pagination -->
     <ul class="pagination">
      <li class="waves-effect"><a href="arxiv.php?page=<?= $prev_page; ?>"><i class="material-icons">chevron_left</i></a></li>
@@ -127,7 +145,7 @@
               echo '<td>'.$paper['visit_time'].'</td>';
               echo '<td><a class="z-depth-0 waves-effect waves-light btn modal-trigger  light-blue lighten-4 black-text" href="#absmodal_'.$paper['id'].'">View</a></td>';
               echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
-              echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text red lighten-1" type="submit" name="remove_'.$paper['id'].'" value="Remove"/></form></td>';
+              echo '<td><form method="post" class="remove-btn"><input class="btn z-depth-0 red-text transparent" type="submit" name="remove_'.$paper['id'].'" value="Remove"/></form></td>';
               echo '</tr>';
               ?>
               <!-- Abstract Modal Contents -->
@@ -164,15 +182,17 @@
           $new_read_state = '0';
           }
           // insert the record change into logs table
-        $read_change_log_statement = $pdo->prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,`from`,`to`,change_date,abs_url)
-                                        VALUES (:log_type,:paper_id,:paper_title,:change_from,:change_to,:change_date,:url)");
+        $read_change_log_statement = $pdo->prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url)
+                                        VALUES (:log_type,:paper_id,:paper_title,:arxivid,:change_from,:change_to,:change_date,:auth,:url)");
         $read_change_log_statement -> execute([
           'log_type' => 'read state change',
           'paper_id' => $paper['id'],
           'paper_title' => $paper['title'],
+          'arxivid' => $paper['arxivid'],
           'change_from' => $previous_read_state,
           'change_to' => $new_read_state,
           'change_date' => $current_date,
+          'auth' => 'admin',
           'url' => $paper['abs_url'],
         ]);
 
@@ -188,15 +208,17 @@
         }
         // if paper is removed with button
         if(isset($_POST['remove_'.$paper['id']])){
-          $remove_statement = $pdo -> prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,`from`,`to`,change_date,abs_url)
-                                          VALUES (:log_type,:paper_id,:paper_title,:change_from,:change_to,:change_date,:url)");
+          $remove_statement = $pdo -> prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url)
+                                          VALUES (:log_type,:paper_id,:paper_title,:arxivid,:change_from,:change_to,:change_date,:auth,:url)");
           $remove_statement -> execute([
             'log_type' => 'remove paper',
             'paper_id' => $paper['id'],
             'paper_title' => $paper['title'],
+            'arxivid' => $paper['arxivid'],
             'change_from' => NULL,
             'change_to' => NULL,
             'change_date' => $current_date,
+            'auth' => 'admin',
             'url' => $paper['abs_url'],
           ]);
           // delete record from original table

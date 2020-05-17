@@ -44,7 +44,9 @@
 					height: 260px;
 					display: inline-block;
 				}
-
+				ul.tabs-list li{
+				list-style-type: lower-greek !important;
+				}
 				.about-tabs{
 					display: inline-block;
 					background-color: transparent;
@@ -64,10 +66,13 @@
 					<img class="linkedin-pic" src="https://i.imgur.com/cCMgaKO.jpg">
 				</div>
 				<div class="about-text-wrapper">
-					<span id="about-text"><p> Hi! <br><br> My name is Kerim Sertturk. I am an Electrical Engineering student set to graduate from University of British Columbia in May 2020.
-						I am looking to start work between May and September 2020, preferably either in Vancouver or Toronto.
-						<br><br> This portfolio website hosts my recent personal projects and serves as an avenue to improve my web dev skills.
-					</p></span>
+					<span id="about-text"><p> Hi! <br><br> My name is Kerim Sertturk. I am an Electrical Engineering
+						student set to graduate from University of British Columbia at the end of May 2020.
+						I am looking to start work between June and September 2020, preferably either in Vancouver or Toronto. </p>
+						<p>I have previously worked remotely with my capstone client, so I am familiar with most remote access tools that may
+						be required due to COVID-19.</p>
+					<p>You can download my resume <a href="#">here</a></p>
+					</span>
 				</div>
 
 			</div>
@@ -100,8 +105,13 @@
         </div>
         <div id="electrical" class="col s12">
             <h5 class="flow-text blue-text text-darken-3">Electrical Engineering</h5>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum at lacus congue, suscipit elit nec, tincidunt orci.</p>
-            <p>Mauris dolor augue, vulputate in pharetra ac, facilisis nec libero. Fusce condimentum gravida urna, vitae scelerisque erat ornare nec.</p>
+						<p></p>
+            <ul class="tabs-list" style="padding-left:20px;">
+							<li>power systems analysis</li>
+            	<li>microcontrollers</li>
+							<li>circuits</li>
+							<li>hardware description language</li>
+            </ul>
         </div>
       </div>
     </div>

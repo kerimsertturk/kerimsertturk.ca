@@ -1,12 +1,42 @@
 <?php
-
-
+include('navbar.php');
+if(isset($_POST['login'])) {
+	if(!empty($_POST['username']) && !empty($_POST['password'])){
+		unset($_SESSION['user']); // logs out previous user
+		require_once("pdo.php");
+		// access mysql users table to confirm username and password
+		$users_stmt = $pdo->prepare("SELECT user_id,username,user_password FROM authorized_users
+			WHERE username=:username AND user_password=:passwd");
+		$users_stmt -> execute([
+			':username' => $_POST['username'],
+			':passwd' => $_POST['password'],
+		]);
+		$authorize_user = $users_stmt->fetch(PDO::FETCH_ASSOC);
+		// if query with the entered username and password yields true then login
+		if($authorize_user == true){
+			$_SESSION['user'] = $_POST['username'];
+			$_SESSION['authorized'] = True;
+			header('Location: index-loggedin.php');
+			return;
+		}
+		else{
+			$_SESSION['unauthorized'] = True;
+			header('Location: index.php');
+			return;
+			}
+		}
+		else{
+			header('Location: index.php');
+			return;
+		}
+	}
+	// if logged in redirect to new home page
+	if(isset($_SESSION['authorized'])){
+		header('Location: index-loggedin.php');
+	}
 ?>
 
-<!DOCTYPE html>
 <html>
-
-	<?php include('navbar.html'); ?>
 	<head>
 		<style type="text/css">
 			.welcome{
@@ -31,10 +61,17 @@
 				display: inline-block;
 				float: right;
 				position: relative;
+				/*
 				border-style: solid;
 				border-width:thin;
+				*/
 			}
-			.input-field, label{
+			.incorrect-login{
+				text-align: center;
+				color: red;
+				padding-top: 20px;
+			}
+			.input-field, .login-form, label{
 				padding-left: 40px;
 				padding-right: 40px;
 			}
@@ -60,7 +97,7 @@
 					width:80%;
 					top:15%;
 					margin-left: 10%;
-					margin-bottom:5%;
+					margin-bottom:0;
 					display: inline-block;
 					float:none;
 				}
@@ -72,6 +109,9 @@
 					margin-left: -260px;
 					margin-top: 0;
 					float:none;
+				}
+				.input-field{
+					margin-top:20px !important;
 				}
 		}
 		</style>
@@ -90,19 +130,27 @@
 							<p>If you don't have the login information, please contact me explaining
 							the reason for the access request.</p>
 				</div>
-				<div class="login-wrapper">
-					<div class="input-field" style="margin-top:100px; padding-bottom:30px;">
-						<i class="material-icons prefix">account_circle</i>
-					 <input id="user_name" type="text" class="validate ">
-					 <label for="user_name">username</label>
-				 </div>
-					<div class="input-field">
-						<i class="material-icons prefix">lock</i>
-						<input id="password" type="password" class="validate">
-	          <label for="password">password</label>
+					<div class="login-wrapper">
+					<form method="post">
+							<div class="input-field" style="margin-top:100px; padding-bottom:30px;">
+								<i class="material-icons prefix">account_circle</i>
+								<input id="user_name" type="text" name="username">
+							 <label for="user_name">username</label>
+						 </div>
+							<div class="input-field">
+								<i class="material-icons prefix">lock</i>
+									<input id="password" type="password" name="password">
+								<label for="password">password</label>
+							</div>
+							<input class="login-btn btn z-depth-0 waves-light blue darken-2 " type="submit" name="login" value="Login"/>
+						</form>
+						<?php
+							if(isset($_SESSION["unauthorized"])){
+								echo '<p class="incorrect-login">Login credentials are incorrect. Please try again</p>';
+								unset($_SESSION["unauthorized"]);
+							}
+						?>
 					</div>
-					<form method="post"><input class="login-btn btn z-depth-0 waves-light blue darken-2 " type="submit" name="login" value="Login"/></form>
-				</div>
 			</div>
 		</div>
   </main>

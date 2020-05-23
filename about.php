@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-	<?php include('navbar.html'); ?>
-	<?php include('materialize.php'); ?>
+	<?php include('navbar.php'); ?>
+	<?php include('materialize.php');
 
-
+	?>
 	<head>
 		<style type="text/css">
 			/* text on hover */
@@ -55,6 +55,11 @@
 					.about-text-wrapper{
 						width:100%;
 						height: 80%;
+						margin-bottom: 50px;
+				} }
+				@media (max-width: 530px){
+					.about-text-wrapper{
+						margin-bottom: 65px;
 				} }
 		</style>
 	</head>

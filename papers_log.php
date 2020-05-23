@@ -1,5 +1,5 @@
 <?php
-include('navbar.html');
+include('navbar.php');
 include('materialize.php');
 require_once("pdo.php");
 

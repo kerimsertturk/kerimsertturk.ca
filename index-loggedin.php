@@ -81,7 +81,7 @@ include('navbar.php');
           <div class="login-wrapper">
             <?php
               if(isset($_SESSION['authorized'])) {
-                echo '<a class="logout-btn btn z-depth-0 waves-light red darken-2" href="logout.php">Logout</a>';
+                echo '<a class="logout-btn btn z-depth-0 red darken-2" href="logout.php">Logout</a>';
               }
             ?>
 

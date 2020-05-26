@@ -1,7 +1,6 @@
 <?php
-//$_SESSION['unauthorized'] = true; // initially everywhere in the website the user is unauthorized
 include('navbar.php');
-require_once("pdo.php"); // pdo credentials
+require_once("pdo.php"); // pdo info
 
 if(isset($_POST['login'])) {
 	if(!empty($_POST['username']) && !empty($_POST['password'])){
@@ -23,6 +22,7 @@ if(isset($_POST['login'])) {
 		}
 		else{
 			header('Location: index.php'); // if login incorrect redirect to home page
+			$_SESSION['incorrect_login'] = "Login credentials are incorrect. Please try again";
 			return;
 			}
 		}
@@ -143,12 +143,12 @@ if(isset($_POST['login'])) {
 									<input id="password" type="password" name="password">
 								<label for="password">password</label>
 							</div>
-							<input class="login-btn btn z-depth-0 waves-light blue darken-2 " type="submit" name="login" value="Login"/>
+							<input class="login-btn btn z-depth-0 blue darken-2" type="submit" name="login" value="Login"/>
 						</form>
 						<?php
-							if(isset($_SESSION["unauthorized"])){
-								echo '<p class="incorrect-login">Login credentials are incorrect. Please try again</p>';
-								unset($_SESSION["unauthorized"]);
+							if(isset($_SESSION["incorrect_login"])){
+								echo '<p class="incorrect-login">'.$_SESSION["incorrect_login"].'</p>'; //flash message
+								unset($_SESSION["incorrect_login"]);
 							}
 						?>
 					</div>

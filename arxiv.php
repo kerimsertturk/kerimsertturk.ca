@@ -255,7 +255,7 @@ include('navbar.php');
             'change_from' => NULL,
             'change_to' => NULL,
             'change_date' => $current_date,
-            'auth' => 'admin',
+            'auth' => $_SESSION['user'],
             'url' => $paper['abs_url'],
           ]);
           // delete record from original table

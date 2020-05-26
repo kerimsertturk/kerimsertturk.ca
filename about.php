@@ -26,9 +26,10 @@
 					display: inline-block;
 					float:left;
 					padding-left: 50px;
-					padding-top: 20px;
+					margin-bottom:30px;
 					width: 60%;
 					height: 100%;
+					line-height: 1.68em;
 				}
 
 				.about-text{
@@ -37,46 +38,60 @@
 				}
 				.img-div{
 					float: right;
+					width: 300px;
+					margin-top:40px;
 					margin-right: 70px;
 				}
 				.linkedin-pic{
-					width: auto;
-					height: 260px;
+					width: 300px;
 					display: inline-block;
 				}
+				.tabs-list{
+					margin-left:50px;
+					line-height: 1.75em;
+				}
 				ul.tabs-list li{
-				list-style-type: lower-greek !important;
+				list-style-type: disc !important;
 				}
 				.about-tabs{
 					display: inline-block;
 					background-color: transparent;
 				}
-				@media (max-width: 1300px){
+				@media (max-width: 1340px){
 					.about-text-wrapper{
 						width:100%;
-						height: 80%;
-						margin-bottom: 50px;
-				} }
-				@media (max-width: 530px){
+						margin-bottom: 40px;
+					}
+					.img-div{
+						float:none;
+						margin-right:0;
+						margin-top:40px !important;
+						display: block;
+						margin:auto;
+						}
+				}
+				@media (max-width: 590px){
 					.about-text-wrapper{
-						margin-bottom: 65px;
+						margin-bottom: 90px;
 				} }
 		</style>
 	</head>
 
   <main>
     <div class="container">
+			<div class="img-div">
+				<img class="linkedin-pic" src="https://i.imgur.com/cCMgaKO.jpg">
+			</div>
 			<div class="about">
-				<div class="img-div">
-					<img class="linkedin-pic" src="https://i.imgur.com/cCMgaKO.jpg">
-				</div>
 				<div class="about-text-wrapper">
-					<span id="about-text"><p> Hi! <br><br> My name is Kerim Sertturk. I am an Electrical Engineering
-						student set to graduate from University of British Columbia at the end of May 2020.
-						I am looking to start work between June and September 2020, preferably either in Vancouver or Toronto. </p>
-						<p>I have previously worked remotely with my capstone client, so I am familiar with most remote access tools that may
+					<span id="about-text"><h5> Hello! </h5> <br> My name is Kerim Sertturk. I recently graduated with a major in Electrical Engineering
+						from the University of British Columbia.
+						<p>I am looking to start work between June and September 2020, preferably either in Vancouver or Toronto.
+						I am best suited for roles in <b>data analytics, machine learning applications and back-end development.</b></p>
+						<p>I have previously worked remotely with my capstone client, so I am familiar with most remote access tools which may
 						be required due to COVID-19.</p>
-					<p>You can download my resume <a href="#">here</a></p>
+						<p>You can download my resume <a href="https://github.com/kerimsertturk/kerimsertturk.ca/raw/master/Resume_Kerim_Sertturk_05_08_2020.pdf">here</a>
+						 which has my contact information too.</p>
 					</span>
 				</div>
 
@@ -100,22 +115,52 @@
         </ul>
         <div id="ml" class="col s12">
             <h5 class="flow-text blue-text text-darken-3">Machine Learning</h5>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum at lacus congue, suscipit elit nec, tincidunt orci.</p>
-            <p>Mauris dolor augue, vulputate in pharetra ac, facilisis nec libero. Fusce condimentum gravida urna, vitae scelerisque erat ornare nec.</p>
+            <p>In my capstone project I applied:</p>
+							<ul class="tabs-list">
+								<li>CNNs</li>
+								<li>Object Detection (YOLO)</li>
+								<li>Semantic Segmentation (u-Net architecture)</li>
+								<li>Focal Loss</li>
+								<li>F1 Score</li>
+							</ul>
+						<p>Through personal research, I have gained conceptual familiarity with: </p>
+							<ul class="tabs-list">
+								<li>Regression, Random Forests and Unsupervised Classification </li>
+								<li>Principle Component Analysis, Overfitting</li>
+								<li>Natural Language Processing (NLP)</li>
+								<li>Recommender Systems</li>
+							</ul>
         </div>
         <div id="webdesign" class="col s12">
             <h5 class="flow-text blue-text text-darken-3">Web Design</h5>
-            <p>ETL,CRUD, HTTP request methods</p>
-            <p>Mauris dolor augue, vulputate in pharetra ac, facilisis nec libero. Fusce condimentum gravida urna, vitae scelerisque erat ornare nec.</p>
+						<p>The development of this website improved my knowledge of:
+							<ul class="tabs-list">
+								<li>PHP (with PDO)</li>
+	            	<li>HTML/CSS</li>
+								<li>jQuery</li>
+								<li>SQL</li>
+								<li>Python</li>
+	            </ul>
+							<p>as well as database management fundamentals such as:</p>
+							<ul class="tabs-list">
+								<li>ETL</li>
+	            	<li>CRUD</li>
+								<li>HTTP request methods</li>
+								<li>Security</li>
+								<li>Logging</li>
+	            </ul>
+
         </div>
         <div id="electrical" class="col s12">
             <h5 class="flow-text blue-text text-darken-3">Electrical Engineering</h5>
-						<p></p>
-            <ul class="tabs-list" style="padding-left:20px;">
+						<p>During my undergraduate degree I have taken courses and participated in projects involving: </p>
+            <ul class="tabs-list">
 							<li>power systems analysis</li>
+							<li>electrical design / CAD</li>
             	<li>microcontrollers</li>
 							<li>circuits</li>
-							<li>hardware description language</li>
+							<li>FPGAs & hardware description language</li>
+							<li>motors</li>
             </ul>
         </div>
       </div>

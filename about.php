@@ -48,7 +48,7 @@
 				}
 				.tabs-list{
 					margin-left:50px;
-					line-height: 1.75em;
+					line-height: 1.70em;
 				}
 				ul.tabs-list li{
 				list-style-type: disc !important;
@@ -145,7 +145,6 @@
 							<ul class="tabs-list">
 								<li>ETL</li>
 	            	<li>CRUD</li>
-								<li>HTTP request methods</li>
 								<li>Security</li>
 								<li>Logging</li>
 	            </ul>

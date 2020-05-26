@@ -7,6 +7,18 @@ include('navbar.php');
     table{
       font-size: 15px;
     }
+    .project-info{
+      float:left;
+      margin-top:10px;
+    }
+    .info-modal-text p{
+      font-size: 16px;
+      line-height: 1.80em;
+    }
+    .info-steps li{
+      list-style-type: upper-roman !important;
+      margin-left: 20px;
+    }
     .log-table{
       margin-top: 10px;
       float: right;
@@ -97,7 +109,25 @@ include('navbar.php');
     </div>
     -->
     <div class="container">
-    <a class="log-table btn z-depth-0 black-text lime waves-effect waves-light" href="papers_log.php">CHANGE LOG</a>
+      <a class="project-info btn modal-trigger z-depth-0 blue-grey darken-1 waves-effect waves-light" href="#info_modal">project info</a>
+      <a class="log-table btn z-depth-0 black-text lime waves-effect waves-light" href="papers_log.php">CHANGE LOG</a>
+    </div>
+
+    <div class="modal" id="info_modal">
+      <div class="info-modal-text modal-content">
+        <h5><b>Background Information</b></h5>
+          <p>The problem that lead to this project was the difficulty of keeping track of open-access ML papers that I discover while browsing,
+          and find interesting. The standard approach would be to download and save them in a folder, which takes significant space
+          on the hard drive and requires a seperate tracking sheet in which records would have to be manually entered. Not only is this process tedious, but
+          with too many records, one would have to open the pdfs again and refer back to the abstracts to remember the contents.
+          <p>The table on this page solves the issues by keeping track of all papers visited with easy access to the abstracts and ability
+          to set if they are read as well as to remove them from the database. A log table keeps track of all the changes made by any user.
+          Removed records can be restored through the log table. </p>
+          <p>The project is made with Python, PHP, MySQL, HTML/CSS and Materialize design framework.</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close blue btn-flat white-text">Close</a>
+      </div>
     </div>
 
     <!-- Pagination -->
@@ -114,6 +144,7 @@ include('navbar.php');
     <?php endfor ?>
      <li class="waves-effect"><a href="arxiv.php?page=<?= $next_page; ?>"><i class="material-icons">chevron_right</i></a></li>
    </ul>
+
 
     <div class="container">
       <table class="responsive-table striped">

@@ -1,3 +1,6 @@
+<?php
+include('navbar.php');
+?>
 <html>
 <head>
   <style type="text/css">
@@ -31,7 +34,7 @@
       margin:auto;
       display: block;
     }
-    input{
+    input, .unauth-button{
       font-weight: bold;
     }
     .set-read{
@@ -53,7 +56,6 @@
 </head>
 
 	<?php
-  include('navbar.php');
   include('materialize.php');
   require_once("pdo.php");
 
@@ -95,7 +97,7 @@
     </div>
     -->
     <div class="container">
-    <a class="log-table btn z-depth-0 black-text lime waves-effect waves-light" href="papers_log.php">change log</a>
+    <a class="log-table btn z-depth-0 black-text lime waves-effect waves-light" href="papers_log.php">CHANGE LOG</a>
     </div>
 
     <!-- Pagination -->
@@ -143,9 +145,23 @@
               echo "<td>".$paper['id']."</td>";
               echo '<td><a href="'.$paper['abs_url'].'">'.$paper['title'].'</a></td>';
               echo '<td>'.$paper['visit_time'].'</td>';
-              echo '<td><a class="z-depth-0 waves-effect waves-light btn modal-trigger  light-blue lighten-4 black-text" href="#absmodal_'.$paper['id'].'">View</a></td>';
-              echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
-              echo '<td><form method="post" class="remove-btn"><input class="btn z-depth-0 red-text transparent" type="submit" name="remove_'.$paper['id'].'" value="Remove"/></form></td>';
+              echo '<td><a class="z-depth-0 waves-effect waves-light btn modal-trigger light-blue lighten-4 black-text" href="#absmodal_'.$paper['id'].'">View</a></td>';
+              // not authorized
+              if(!isset($_SESSION['authorized'])){
+                echo '<td><a class="unauth-button btn modal-trigger z-depth-0 white-text lighten-1 '.$set_read_color.'" href="#unauthorized_modal">'.$read_text.'</a></td>';
+                echo '<td><a class="unauth-button btn modal-trigger z-depth-0 red-text transparent" href="#unauthorized_modal">Remove</a></td>';
+              }
+              // authorized, guest
+              elseif(isset($_SESSION['authorized']) && $_SESSION['user']=="guest"){
+                echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
+                echo '<td><a class="unauth-button btn modal-trigger z-depth-0 red-text transparent" href="#guest_modal">Remove</a></td>';
+              }
+
+              // authorized, not guest
+              elseif(isset($_SESSION['authorized']) && $_SESSION['user']!="guest"){
+                echo '<td><form method="post" class="read-btn"><input class="btn z-depth-0 white-text lighten-1 '.$set_read_color.'" type="submit" name="read_state_'.$paper['id'].'" value="'.$read_text.'"/></form></td>';
+                echo '<td><form method="post" class="remove-btn"><input class="btn z-depth-0 red-text transparent" type="submit" name="remove_'.$paper['id'].'" value="Remove"/></form></td>';
+              }
               echo '</tr>';
               ?>
               <!-- Abstract Modal Contents -->
@@ -164,17 +180,38 @@
         </table>
     </div>
 
-    <?php
+    <div class="modal" id="unauthorized_modal">
+      <div class="modal-content">
+        <h4><b>Warning!</b></h4>
+        <p>Editing the projects are reserved for the admin and guests with credentials.
+        Please login or request access to use these features</p>
+      </div>
+      <div class="modal-footer">
+        <a style="margin-right:12px;" href="index.php" class="modal-close red btn-flat white-text">Login</a>
+        <a href="#!" class="modal-close light-blue darken-4 btn-flat white-text">Dismiss</a>
+      </div>
+    </div>
 
+    <div class="modal" id="guest_modal">
+      <div class="modal-content">
+        <h5><b>Attention!</b></h5>
+        <p>Guests are prevented from moving records for data security reasons. If you would like to observe this function please contact me.</p>
+      </div>
+      <div class="modal-footer">
+        <a style="margin-right:12px;" href=about.php class="modal-close deep-purple darken-2 btn-flat white-text">CONTACT INFO</a>
+        <a href="#!" class="modal-close light-blue darken-4 btn-flat white-text">OK</a>
+      </div>
+    </div>
+
+    <?php
     date_default_timezone_set('America/Vancouver');
     $current_date = date("Y-m-d H:i:s"); // used for entering date of read log change
 
     $arxiv_papers -> execute();  // since PDOStatement can't be used once consumed, need to re-execute the statement before another loop
     while($paper = $arxiv_papers->fetch(PDO::FETCH_ASSOC)){
-
       $previous_read_state = $paper['read_pdf'];
 
-      if (isset($_POST['read_state_'.$paper['id']])) {
+      if (isset($_POST['read_state_'.$paper['id']]) && 	isset($_SESSION['authorized'])) {
           if ($previous_read_state == '0') {
           $new_read_state = '1';
         }
@@ -192,7 +229,7 @@
           'change_from' => $previous_read_state,
           'change_to' => $new_read_state,
           'change_date' => $current_date,
-          'auth' => 'admin',
+          'auth' => $_SESSION['user'],
           'url' => $paper['abs_url'],
         ]);
 
@@ -207,7 +244,7 @@
               </script>';
         }
         // if paper is removed with button
-        if(isset($_POST['remove_'.$paper['id']])){
+        if(isset($_POST['remove_'.$paper['id']]) && isset($_SESSION['authorized'])){
           $remove_statement = $pdo -> prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url)
                                           VALUES (:log_type,:paper_id,:paper_title,:arxivid,:change_from,:change_to,:change_date,:auth,:url)");
           $remove_statement -> execute([

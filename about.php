@@ -105,7 +105,7 @@
         </div>
         <div id="webdesign" class="col s12">
             <h5 class="flow-text blue-text text-darken-3">Web Design</h5>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum at lacus congue, suscipit elit nec, tincidunt orci.</p>
+            <p>ETL,CRUD, HTTP request methods</p>
             <p>Mauris dolor augue, vulputate in pharetra ac, facilisis nec libero. Fusce condimentum gravida urna, vitae scelerisque erat ornare nec.</p>
         </div>
         <div id="electrical" class="col s12">

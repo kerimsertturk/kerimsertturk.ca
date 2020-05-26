@@ -1,7 +1,6 @@
 <?php
 session_start();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -25,9 +24,13 @@ session_start();
         <a href="index.php" class="brand-logo">home</a>
         <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:-45px;">
-            <?php if(isset($_SESSION['authorized'])) {
-            echo '<li style="margin-right:20px;">logged in as '.$_SESSION["user"].'</li>';
-            echo '<li><a class="btn blue-grey z-depth-2 waves-effect waves-light"href="logout.php">LOGOUT</a></li>';
+            <?php
+            if(isset($_SESSION['authorized'])) {
+              echo '<li style="margin-right:20px;">logged in as '.$_SESSION["user"].'</li>';
+              echo '<li><a class="btn blue-grey z-depth-2 waves-effect waves-light"href="logout.php">LOGOUT</a></li>';
+            }
+            if(!isset($_SESSION['authorized'])){
+              echo '<li><a class="btn blue-grey z-depth-2 waves-effect waves-light" href="index.php">LOGIN</a></li>';
             }
             ?>
             <li><a href="https://kerimsertturk.github.io">Blog</a></li>

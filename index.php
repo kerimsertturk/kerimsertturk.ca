@@ -1,32 +1,33 @@
 <?php
+//$_SESSION['unauthorized'] = true; // initially everywhere in the website the user is unauthorized
 include('navbar.php');
+require_once("pdo.php"); // pdo credentials
+
 if(isset($_POST['login'])) {
 	if(!empty($_POST['username']) && !empty($_POST['password'])){
 		unset($_SESSION['user']); // logs out previous user
-		require_once("pdo.php");
 		// access mysql users table to confirm username and password
 		$users_stmt = $pdo->prepare("SELECT user_id,username,user_password FROM authorized_users
 			WHERE username=:username AND user_password=:passwd");
 		$users_stmt -> execute([
-			':username' => $_POST['username'],
-			':passwd' => $_POST['password'],
+			':username' => trim($_POST['username']),
+			':passwd' => trim($_POST['password']),
 		]);
 		$authorize_user = $users_stmt->fetch(PDO::FETCH_ASSOC);
 		// if query with the entered username and password yields true then login
 		if($authorize_user == true){
-			$_SESSION['user'] = $_POST['username'];
-			$_SESSION['authorized'] = True;
-			header('Location: index-loggedin.php');
+			$_SESSION['user'] = trim($_POST['username']); // set username to session
+			$_SESSION['authorized'] = True; // set session authorization
+			header('Location: index-loggedin.php'); // redirect to logged in version of home page
 			return;
 		}
 		else{
-			$_SESSION['unauthorized'] = True;
-			header('Location: index.php');
+			header('Location: index.php'); // if login incorrect redirect to home page
 			return;
 			}
 		}
 		else{
-			header('Location: index.php');
+			header('Location: index.php'); // when nothing is typed but login button clicked, redirect to non-logged home page
 			return;
 		}
 	}

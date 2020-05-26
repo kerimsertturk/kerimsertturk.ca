@@ -12,7 +12,8 @@ else { $page = 1; }
 $start_each_page = ($page - 1) * $limitperpage;
 
 // table query
-$log_table = $pdo->prepare("SELECT log_id,log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url FROM arxiv_papers_log ORDER BY log_id DESC LIMIT $start_each_page, $limitperpage");
+$log_table = $pdo->prepare("SELECT log_id,log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url
+  FROM arxiv_papers_log ORDER BY log_id DESC LIMIT $start_each_page, $limitperpage");
 $log_table -> execute();
 
 // pagination stuff
@@ -123,7 +124,13 @@ else{
             echo '<td>'.$log['authorization'].'</td>';
             echo '<td><a href="'.$log['abs_url'].'">'.$log['paper_title'].'</a></td>';
             if($restore_option){
-            echo '<td><form method="post" class="restore-btn"><input class="btn z-depth-0 white-text lime darken-4" type="submit" name="restore_'.$log['paper_id'].'" value="Restore"/></form></td>';
+              if(!isset($_SESSION['authorized'])){
+                echo '<td><a class="btn modal-trigger z-depth-0 white-text lime darken-4" href="#unauthorized_modal">Restore</a></td>';
+              }
+              else{
+                  echo '<td><form method="post" class="restore-btn"><input class="btn z-depth-0 white-text lime darken-4"
+                  type="submit" name="restore_'.$log['paper_id'].'" value="Restore"/></form></td>';
+              }
             }
             else{
             echo "<td></td>";
@@ -133,6 +140,18 @@ else{
             ?>
         </tbody>
       </table>
+  </div>
+
+  <div class="modal" id="unauthorized_modal">
+    <div class="modal-content">
+      <h4><b>Warning!</b></h4>
+      <p>Editing the projects are reserved for the admin and guests with credentials.
+      Please login or request access to use these features</p>
+    </div>
+    <div class="modal-footer">
+      <a style="margin-right:12px;" href="index.php" class="modal-close red btn-flat white-text">Login</a>
+      <a href="#!" class="modal-close light-blue darken-4 btn-flat white-text">Dismiss</a>
+    </div>
   </div>
 
   <?php
@@ -159,7 +178,7 @@ else{
         'change_from' => NULL,
         'change_to' => NULL,
         'change_date' => $current_date,
-        'auth' => 'admin',
+        'auth' => $_SESSION['user'],
         'url' => $log['abs_url'],
         ]);
 
@@ -173,6 +192,13 @@ else{
 
 </main>
 <?php include('footer.html'); ?>
+<script type="text/javascript">
+  $(document).ready(function(){
+  $('.modal').modal({
+    'opacity': 0.6
+  });
+});
+</script>
 
 
 </html>

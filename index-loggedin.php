@@ -76,7 +76,7 @@ include('navbar.php');
           </div>
             <p style="line-height:1.6; font-size:16px;">
               You are now granted full access. You can view all projects and perform a set of actions that aim to demonstrate various features of the projects.</p>
-              <p style="line-height:1.6; font-size:16px;">Please note that a record will be kept of any changes you make to the projects or databases.</p>
+              <p style="line-height:1.6; font-size:16px;"><b>Please note that a record will be kept of any changes you make to the projects or databases.</b></p>
         </div>
           <div class="login-wrapper">
             <?php

@@ -15,10 +15,6 @@ include('navbar.php');
       font-size: 16px;
       line-height: 1.80em;
     }
-    .info-steps li{
-      list-style-type: upper-roman !important;
-      margin-left: 20px;
-    }
     .log-table{
       margin-top: 10px;
       float: right;
@@ -123,7 +119,8 @@ include('navbar.php');
           <p>The table on this page solves the issues by keeping track of all papers visited with easy access to the abstracts and ability
           to set if they are read as well as to remove them from the database. A log table keeps track of all the changes made by any user.
           Removed records can be restored through the log table. </p>
-          <p>The project is made with Python, PHP, MySQL, HTML/CSS and Materialize design framework.</p>
+          <p>The project is made with Python, PHP, MySQL, HTML/CSS and Materialize design framework.
+            The code is available at <a href="https://github.com/kerimsertturk/kerimsertturk.ca">my github repo.</a></p>
       </div>
       <div class="modal-footer">
         <a href="#!" class="modal-close blue btn-flat white-text">Close</a>
@@ -239,7 +236,8 @@ include('navbar.php');
     $current_date = date("Y-m-d H:i:s"); // used for entering date of read log change
 
     $arxiv_papers -> execute();  // since PDOStatement can't be used once consumed, need to re-execute the statement before another loop
-    while($paper = $arxiv_papers->fetch(PDO::FETCH_ASSOC)){
+    $papers = $arxiv_papers->fetchAll(PDO::FETCH_ASSOC);
+    foreach($papers as $paper){
       $previous_read_state = $paper['read_pdf'];
 
       if (isset($_POST['read_state_'.$paper['id']]) && 	isset($_SESSION['authorized'])) {

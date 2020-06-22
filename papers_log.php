@@ -144,7 +144,7 @@ else{
 
   <div class="modal" id="unauthorized_modal">
     <div class="modal-content">
-      <h4><b>Warning!</b></h4>
+      <h5><b>Warning!</b></h5>
       <p>Editing the projects are reserved for the admin and guests with credentials.
       Please login or request access to use these features</p>
     </div>
@@ -159,14 +159,14 @@ else{
   date_default_timezone_set('America/Vancouver');
   $current_date = date("Y-m-d H:i:s"); // used for entering date of restore log
   $log_table -> execute(); // since PDOStatement can't be used once consumed, need to re-execute the statement before another loop
-  while($log = $log_table->fetch(PDO::FETCH_ASSOC)){
+  $logs = $log_table->fetchAll(PDO::FETCH_ASSOC);
+  foreach($logs as $log){
     if(isset($_POST['restore_'.$log['paper_id']])){
       // restore the paper back to original from backup using arxivid NOT paper id (will get a new value when inserted into arxiv_papers)
       $restore_statement = $pdo->prepare("INSERT INTO arxiv_papers SELECT * FROM papers_backup WHERE arxivid=:log_arxivid");
       $restore_statement -> execute([
         'log_arxivid' => $log['arxivid'],
       ]);
-
       // create log record of restoration
       $restore_log_stmnt = $pdo-> prepare("INSERT INTO arxiv_papers_log (log_type,paper_id,paper_title,arxivid,`from`,`to`,change_date,authorization,abs_url)
                                       VALUES (:log_type,:paper_id,:paper_title,:arxivid,:change_from,:change_to,:change_date,:auth,:url)");

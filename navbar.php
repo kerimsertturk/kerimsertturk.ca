@@ -38,10 +38,7 @@ session_start();
             <li><a class="dropdown-trigger" href="#!" data-target="dropdown1">Projects<i class="material-icons right">arrow_drop_down</i></a></li>
             <ul id="dropdown1" class="dropdown-content">
               <li><a class="blue-grey-text waves-effect waves-light text-darken-4" href="arxiv.php">Papers DB</a></li>
-              <!--
-              <li><a class="blue-grey-text text-darken-4" href="#">French Vocabulary</a></li>
-              <li><a class="blue-grey-text text-darken-4" href="#">Coursera Classes</a></li>
-            -->
+              <li><a class="blue-grey-text waves-effect waves-light text-darken-4" href="french-api.php">French API</a></li>
             </ul>
         </ul>
       </div>
@@ -62,10 +59,7 @@ session_start();
             <div class="collapsible-body">
               <ul>
                 <li><a href="arxiv.php">Papers DB</a></li>
-                <!--
-                <li><a href="#!">French Vocabulary</a></li>
-                <li><a href="#!">Coursera Classes</a></li>
-                -->
+                <li><a href="french-api.php">French API</a></li>
               </ul>
             </div>
           </li>

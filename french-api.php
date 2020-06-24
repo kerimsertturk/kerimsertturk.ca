@@ -8,7 +8,7 @@ include("pdo.php");
   <style type="text/css">
     .card-wrapper{
       margin-top:2% !important;
-      margin: 80px;
+      margin: 3vw;
     }
     .card-custom{
       float: right;
@@ -38,7 +38,8 @@ include("pdo.php");
       background-color: #132a4a;
       display: inline-block;
       float: left;
-      width: 50vw;
+      width: 55vw;
+      min-width: 46vw;
       height: auto;
       min-height: 75vh;
       border-radius: 30px;
@@ -93,11 +94,18 @@ include("pdo.php");
        margin-left: 15px;
        margin-right: 6px;
        color: white;
-       line-height: 5vh;
+       padding: 1.2vh 0;
        font-size: 15px;
-       /* list-style-type: disc; */
      }
-     .search_results_list p{
+     .ordered_results_list li{
+       list-style-type: decimal;
+       margin-left: 15px;
+       margin-right: 30px;
+       color: white;
+       padding: 1.8vh 0;
+       font-size: 15px;
+     }
+     .nature, .search_results_list p{
        color: #abb0b8;
        font-style: italic;
        margin-left: 40px;
@@ -109,7 +117,21 @@ include("pdo.php");
        margin-top: 18vh !important;
        line-height: 2em;
      }
-
+     @media (max-width: 1110px){
+      .card-custom{
+        width: 90vw;
+        min-height: 30vh;
+        float:none;
+       }
+       .card-wrapper{
+         margin-left: 3vw;
+       }
+      .info-search-wrapper{
+         width: 90vw;
+         min-height: 45vh;
+         margin-bottom: 2vh;
+       }
+     }
   </style>
 </head>
 
@@ -126,8 +148,9 @@ include("pdo.php");
        <input class="french-api-btn btn z-depth-4" type="submit" name="synonyms" value="synonyms" onclick="fetch_syn(); return false;"/>
       <div class="search-output" id="search-output">
         <p class="results_title" id="results-title"></p>
+        <p class="nature" id="nature"></p>
         <ul class="search_results_list" id="results-list"></ul>
-
+        <ol class="ordered_results_list" id="ordered_results_list"></ol>
       </div>
     </div>
 
@@ -189,22 +212,14 @@ include("pdo.php");
   //     setTimeout(getdata,1200) //try to fetch another in a second if too long
   //   }
 
-  // function return_title (dicolink_type, search_word){
-  //   if (search_word.toString().trim().length == 0){
-  //     var title_string = "... please type the word ...";
-  //   }
-  //   else if(search_word.trim().length > 1 ){
-  //     var title_string = "you can only search one word"
-  //   }
-  //   else{
-  //     var title_string = dicolink_type + " for " + search_word;
-  //   }
-  //   return title_string;
-  // }
   var error_p = document.createElement("P");
   error_p.className = "error-msg";
   var title = document.getElementById("results-title");
   var results_list =  document.getElementById("results-list");
+  var nature = document.getElementById("nature");
+  var ordered_list = document.getElementById("ordered_results_list");
+  var dico_host = "dicolink.p.rapidapi.com";
+  var dico_fetch_url_stem = "https://dicolink.p.rapidapi.com/mot/";
 
   function error404_msg(){
     title.innerHTML = "";
@@ -215,75 +230,111 @@ include("pdo.php");
     title.appendChild(error_p);
   }
 
-  const dico_host = "dicolink.p.rapidapi.com";
-  function fetch_cit(){
-    // clear title
-   results_list.innerHTML = "";
-   title.innerHTML = "";
-   error_p.innerHTML = "";
-   // create error element
-
-   const get_type = "Citations";
-   const searched_word = document.getElementById('search-word').value.toString();
-   const word_length = searched_word.split(' ').length;
-   // check if multiple words searched
-   if(word_length != 1){
-    error_p.appendChild(document.createTextNode("Only a single word without spaces can be searched!")); // invalid multiple words error
+  function nosuchword_error(){
+    title.innerHTML = "";
+    error_p.appendChild(document.createTextNode("Can't find the searched word!"));
+    const br = document.createElement("BR");
+    error_p.appendChild(br);
+    error_p.appendChild(document.createTextNode("Make sure there are no typos or try another conjugation"));
     title.appendChild(error_p);
-   }
-   else{
-    title.innerHTML = get_type + " for " + "\""+ searched_word + "\""; // valid search title
-    // FETCH
-    var lim_num = 5;
-    const dico_cit_url = "https://dicolink.p.rapidapi.com/mot/" + searched_word + "/citations?limite=" + lim_num.toString();
-    async function getdata_citdico(){
-     await getresponse(dico_cit_url, dico_host, rapidapi_key)
-     .then(data => {
-       // console.log(data);
-       if (data == "404"){
-         error404_msg()
-       }
-       else{
-         if (data.error){
-           title.innerHTML = "";
-           error_p.appendChild(document.createTextNode("Can't find the searched word!"));
-           const br = document.createElement("BR");
-           error_p.appendChild(br);
-           error_p.appendChild(document.createTextNode("Make sure there are no typos or try another conjugation"));
-           title.appendChild(error_p);
-         }
-         else {
-           for (var i = 0; i < lim_num; i++){
-             const citation = data[i].citation.toString();
-             const author = data[i].auteur.toString();
-             console.log(citation);
-             const cit_li_entry = document.createElement("LI");
-             cit_li_entry.appendChild(document.createTextNode(citation));
-             document.getElementById("results-list").appendChild(cit_li_entry);
-             const cit_p_author = document.createElement("P");
-             cit_p_author.appendChild(document.createTextNode(author));
-             document.getElementById("results-list").appendChild(cit_p_author);
-             }
-           }
-         }
-       })
-     .catch(err => console.log(err));
-       }
-    getdata_citdico()
+  }
+
+  function preprocess_and_call_fetch(get_type, getdata_api_function){
+    // clear inner html fields
+    results_list.innerHTML = "";
+    title.innerHTML = "";
+    error_p.innerHTML = "";
+    nature.innerHTML = "";
+    ordered_list.innerHTML = "";
+
+    const searched_word = document.getElementById('search-word').value.toString(); // obtain searched word
+    const word_length = searched_word.split(' ').length; // length of searched word
+    if(word_length != 1){
+     error_p.appendChild(document.createTextNode("Only a single word without spaces can be searched!")); // invalid multiple words error
+     title.appendChild(error_p);
+    }
+    else{
+     title.innerHTML = get_type + " pour " + "\""+ searched_word + "\"";
+     getdata_api_function(searched_word);
     }
   }
 
-  function fetch_def(){
-   const get_type = "Definiton";
-   document.getElementById("results-title").innerHTML=check_empty_title(get_type);
+  async function getdata_citation(word){
+    const lim_num = 5;
+    const dico_cit_url = dico_fetch_url_stem + word + "/citations?limite=" + lim_num.toString();
+    await getresponse(dico_cit_url, dico_host, rapidapi_key)
+    .then(data => {
+     if (data == "404"){
+       error404_msg()
+     }
+     else{
+       if (data.error){
+         nosuchword_error()
+       }
+       else {
+         for (var i = 0; i < lim_num; i++){
+           const citation = data[i].citation.toString();
+           const author = data[i].auteur.toString();
+           const cit_li_entry = document.createElement("LI");
+           cit_li_entry.appendChild(document.createTextNode(citation));
+           document.getElementById("results-list").appendChild(cit_li_entry);
+           const cit_p_author = document.createElement("P");
+           cit_p_author.appendChild(document.createTextNode(author));
+           document.getElementById("results-list").appendChild(cit_p_author);
+           }
+         }
+       }
+     })
+    .catch(err => console.log(err));
   }
+
+  async function getdata_definition(word){
+    const dico_def_url = dico_fetch_url_stem + word + "/definitions"
+    await getresponse(dico_def_url, dico_host, rapidapi_key)
+    .then(data => {
+     if (data == "404"){
+       error404_msg()
+     }
+     else{
+       if (data.error){
+         nosuchword_error()
+       }
+       else {
+         const display_limit = 3;
+         // nature
+         const nature_word = data[0].nature.toString();
+         console.log(nature_word);
+         const nature_p = document.createElement("P");
+         nature_p.appendChild(document.createTextNode(nature_word));
+         document.getElementById("nature").appendChild(nature_p);
+         for (var i = 0; i < display_limit; i++){
+           // definition
+           const def = data[i].definition.toString();
+           console.log(def);
+           const def_li_entry = document.createElement("LI");
+           def_li_entry.appendChild(document.createTextNode(def));
+           document.getElementById("ordered_results_list").appendChild(def_li_entry);
+           }
+         }
+       }
+     })
+    .catch(err => console.log(err));
+  }
+
+  function fetch_cit(){
+   preprocess_and_call_fetch("Citations", getdata_citation)
+   }
+
+  function fetch_def(){
+   preprocess_and_call_fetch("Definitons", getdata_definition)
+  }
+
   function fetch_exp(){
    const get_type = "Expressions";
-   document.getElementById("results-title").innerHTML=check_empty_title(get_type);
+   preprocess_and_call_fetch("Expressions", getdata_expressions)
   }
   function fetch_syn(){
    const get_type = "Synonyms";
-   document.getElementById("results-title").innerHTML=check_empty_title(get_type);
   }
 
 </script>

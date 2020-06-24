@@ -14,7 +14,7 @@ include("pdo.php");
       float: right;
       min-width: 37vw;
       width: auto;
-      min-height: 30vh;
+      min-height: 37vh;
       height: auto;
       border-radius: 30px !important;
       overflow: hidden;
@@ -143,7 +143,7 @@ include("pdo.php");
           <input id="search-word" type="text" name="search_word">
        </div>
        <input class="french-api-btn btn z-depth-4" type="submit" name="citations" value="citations" onclick="fetch_cit(); return false;"/>
-       <input class="french-api-btn btn z-depth-4" type="submit" name="definition" value="definition" onclick="fetch_def(); return false;"/>
+       <input class="french-api-btn btn z-depth-4" type="submit" name="definition" value="definitions" onclick="fetch_def(); return false;"/>
        <input class="french-api-btn btn z-depth-4" type="submit" name="expressions" value="expressions" onclick="fetch_exp(); return false;"/>
        <input class="french-api-btn btn z-depth-4" type="submit" name="synonyms" value="synonyms" onclick="fetch_syn(); return false;"/>
       <div class="search-output" id="search-output">
@@ -187,7 +187,7 @@ include("pdo.php");
     }
   const quotes_url = "https://quotes15.p.rapidapi.com/quotes/random/?language_code=fr";
   const quotes_host = "quotes15.p.rapidapi.com";
-  const rapidapi_key = "85404dcb84mshc82034ba294896cp180b7djsnd164c6f20ef7";
+  const rapidapi_key = "";
 
   // async function getdata(){
   //   await getresponse(quotes_url, quotes_host, rapidapi_key)
@@ -321,12 +321,40 @@ include("pdo.php");
     .catch(err => console.log(err));
   }
 
+  async function getdata_expressions(word){
+    const lim_num = 5;
+    const dico_exp_url = dico_fetch_url_stem + word + "/expressions?limite=" + lim_num.toString();
+    await getresponse(dico_exp_url, dico_host, rapidapi_key)
+    .then(data => {
+     if (data == "404"){
+       error404_msg()
+     }
+     else{
+       if (data.error){
+         nosuchword_error()
+       }
+       else {
+         console.log(data);
+         for (var i = 0; i < lim_num; i++){
+           // definition
+           // const def = data[i].definition.toString();
+           // console.log(def);
+           // const def_li_entry = document.createElement("LI");
+           // def_li_entry.appendChild(document.createTextNode(def));
+           // document.getElementById("ordered_results_list").appendChild(def_li_entry);
+           }
+         }
+       }
+     })
+    .catch(err => console.log(err));
+  }
+
   function fetch_cit(){
    preprocess_and_call_fetch("Citations", getdata_citation)
    }
 
   function fetch_def(){
-   preprocess_and_call_fetch("Definitons", getdata_definition)
+   preprocess_and_call_fetch("Definitions", getdata_definition)
   }
 
   function fetch_exp(){

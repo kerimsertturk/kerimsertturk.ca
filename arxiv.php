@@ -12,7 +12,7 @@ include('navbar.php');
       margin-top:10px;
     }
     .info-modal-text p{
-      font-size: 16px;
+      /* font-size: 16px; */
       line-height: 1.80em;
     }
     .log-table{
